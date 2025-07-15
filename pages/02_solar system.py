@@ -2,70 +2,67 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, PillowWriter
-import tempfile
-import base64
-import os
+import tempfile, base64, os
 import matplotlib as mpl
 
-    st.title("☀️ Solar System Simulation Based on Kepler's Laws")
+mpl.rcParams['font.family'] = 'Arial'
+mpl.rcParams['axes.unicode_minus'] = False
 
-    # 실제 태양계 행성 데이터 (a: AU, T: years)
-    planet_data = [
-        {"name": "Mercury", "a": 0.39, "T": 0.24, "color": "gray"},
-        {"name": "Venus",   "a": 0.72, "T": 0.62, "color": "orange"},
-        {"name": "Earth",   "a": 1.00, "T": 1.00, "color": "blue"},
-        {"name": "Mars",    "a": 1.52, "T": 1.88, "color": "red"},
-        {"name": "Jupiter", "a": 5.20, "T": 11.86, "color": "brown"},
-        {"name": "Saturn",  "a": 9.58, "T": 29.46, "color": "gold"},
-        {"name": "Uranus",  "a": 19.2, "T": 84.01, "color": "lightblue"},
-        {"name": "Neptune", "a": 30.1, "T": 164.8, "color": "darkblue"},
-    ]
+st.title("☀️ Solar System Simulation Based on Kepler's Laws")
 
-    total_frames = 300
-    fig, ax = plt.subplots(figsize=(8, 8))
-    ax.set_aspect('equal')
-    ax.set_xlim(-32, 32)
-    ax.set_ylim(-32, 32)
-    ax.set_title("Keplerian Orbits of Solar System Planets")
-    ax.set_xlabel("X (AU)")
-    ax.set_ylabel("Y (AU)")
-    ax.grid(True)
-    ax.plot([0], [0], 'yo', markersize=12, label='Sun')
+planet_data = [
+    {"name": "Mercury", "a": 0.39, "T": 0.24, "color": "gray"},
+    {"name": "Venus",   "a": 0.72, "T": 0.62, "color": "orange"},
+    {"name": "Earth",   "a": 1.00, "T": 1.00, "color": "blue"},
+    {"name": "Mars",    "a": 1.52, "T": 1.88, "color": "red"},
+    {"name": "Jupiter", "a": 5.20, "T": 11.86, "color": "brown"},
+    {"name": "Saturn",  "a": 9.58, "T": 29.46, "color": "gold"},
+    {"name": "Uranus",  "a": 19.2, "T": 84.01, "color": "lightblue"},
+    {"name": "Neptune", "a": 30.1, "T": 164.8, "color": "darkblue"},
+]
 
-    orbit_lines = []
-    planet_dots = []
-    labels = []
+total_frames = 300
+fig, ax = plt.subplots(figsize=(8, 8))
+ax.set_aspect('equal')
+ax.set_xlim(-32, 32)
+ax.set_ylim(-32, 32)
+ax.set_title("Keplerian Orbits of Solar System Planets")
+ax.set_xlabel("X (AU)")
+ax.set_ylabel("Y (AU)")
+ax.grid(True)
+ax.plot([0], [0], 'yo', markersize=12, label='Sun')
 
-    for planet in planet_data:
-        a = planet["a"]
-        T = planet["T"]
-        theta = np.linspace(0, 2 * np.pi, 1000)
-        x_orbit = a * np.cos(theta)
-        y_orbit = a * np.sin(theta)  # 원형 궤도로 단순화
-        line, = ax.plot(x_orbit, y_orbit, color=planet["color"], linestyle='--', alpha=0.5)
-        dot, = ax.plot([], [], 'o', color=planet["color"], label=planet["name"])
-        label = ax.text(a, 0.1, "", fontsize=8, ha='left')
-        orbit_lines.append(line)
-        planet_dots.append(dot)
-        labels.append(label)
+orbit_lines = []
+planet_dots = []
+labels = []
 
-    ax.legend(loc='upper right', fontsize=8)
+for planet in planet_data:
+    a = planet["a"]
+    theta = np.linspace(0, 2 * np.pi, 1000)
+    x_orbit = a * np.cos(theta)
+    y_orbit = a * np.sin(theta)
+    line, = ax.plot(x_orbit, y_orbit, color=planet["color"], linestyle='--', alpha=0.5)
+    dot, = ax.plot([], [], 'o', color=planet["color"], label=planet["name"])
+    label = ax.text(a, 0.1, "", fontsize=8, ha='left')
+    orbit_lines.append(line)
+    planet_dots.append(dot)
+    labels.append(label)
 
-    def update(frame):
-        for i, planet in enumerate(planet_data):
-            a = planet["a"]
-            T = planet["T"]
-            angle = 2 * np.pi * (frame / total_frames) * (1 / T)
-            x = a * np.cos(angle)
-            y = a * np.sin(angle)
-            planet_dots[i].set_data([x], [y])
-            labels[i].set_position((x + 0.2, y))
-            labels[i].set_text(planet["name"])
-        return planet_dots + labels
+ax.legend(loc='upper right', fontsize=8)
 
-    ani = FuncAnimation(fig, update, frames=total_frames, interval=50, blit=True)
+def update(frame):
+    for i, planet in enumerate(planet_data):
+        a, T = planet["a"], planet["T"]
+        angle = 2 * np.pi * (frame / total_frames) * (1 / T)
+        x = a * np.cos(angle)
+        y = a * np.sin(angle)
+        planet_dots[i].set_data([x], [y])
+        labels[i].set_position((x + 0.2, y))
+        labels[i].set_text(planet["name"])
+    return planet_dots + labels
 
-# GIF 변환 및 출력 (두 페이지 공통)
+ani = FuncAnimation(fig, update, frames=total_frames, interval=50, blit=True)
+
 def get_animation_html(ani):
     try:
         with tempfile.NamedTemporaryFile(suffix='.gif', delete=False) as tmp_file:
@@ -86,3 +83,4 @@ else:
     st.warning("Failed to generate animation.")
 
 plt.close(fig)
+
