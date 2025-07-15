@@ -5,7 +5,7 @@ from matplotlib.animation import FuncAnimation, PillowWriter
 import tempfile, base64, os
 import matplotlib as mpl
 
-mpl.rcParams['font.family'] = 'Arial'
+mpl.rcParams['font.family'] = 'DejaVu Sans'
 mpl.rcParams['axes.unicode_minus'] = False
 
 st.title("☀️ Solar System Simulation Based on Kepler's Laws")
