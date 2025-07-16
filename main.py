@@ -101,3 +101,36 @@ else:
     st.warning("Failed to generate animation.")
 
 plt.close(fig)
+
+import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 외계 행성 데이터 (이름: [a(AU), e])
+exoplanets = {
+    "HD 222582 b": [1.35, 0.73],
+    "HD 171028 b": [1.32, 0.59]
+}
+
+# 행성 선택
+selected = st.selectbox("외계 행성을 선택하세요", list(exoplanets.keys()))
+
+# 선택한 행성의 궤도 요소
+a, e = exoplanets[selected]
+
+# 타원 궤도 그리기용 함수
+def plot_orbit(a, e):
+    theta = np.linspace(0, 2 * np.pi, 500)
+    r = (a * (1 - e ** 2)) / (1 + e * np.cos(theta))
+    x = r * np.cos(theta)
+    y = r * np.sin(theta)
+
+    fig, ax = plt.subplots()
+    ax.plot(x, y, label=f"{selected} 궤도")
+    ax.plot(-a * e, 0, 'yo', label="항성")  # 중심별(초점)
+    ax.set_aspect('equal')
+    ax.legend()
+    st.pyplot(fig)
+
+# 궤도 시각화
+plot_orbit(a, e)
