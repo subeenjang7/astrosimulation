@@ -7,7 +7,7 @@ import base64
 import os
 import matplotlib as mpl
 
-# English font only
+# Font setting
 mpl.rcParams['font.family'] = 'Arial'
 mpl.rcParams['axes.unicode_minus'] = False
 
@@ -47,20 +47,20 @@ with tab1:
 
     st.write(f"🕒 Estimated Orbital Period: **{T:.2f} years**")
 
-    # Ellipse for orbit
+    # Elliptical Orbit
     theta = np.linspace(0, 2 * np.pi, 1000)
     x_orbit = a * np.cos(theta) - c
     y_orbit = b * np.sin(theta)
 
-    # Planet motion
+    # Planet position
     t = np.linspace(0, 2 * np.pi, 300)
     M = t
     E = np.array([solve_kepler(Mi, e) for Mi in M])
     theta_planet = 2 * np.arctan2(np.sqrt(1 + e) * np.sin(E / 2),
                                   np.sqrt(1 - e) * np.cos(E / 2))
     r = a * (1 - e**2) / (1 + e * np.cos(theta_planet))
-    x_planet = r * np.cos(theta_planet) - c  # ⭐ align with x_orbit
-    y_planet = r * np.sin(theta_planet)
+    x_planet = r * np.cos(theta_planet) - c
+    y_planet = r * np.sin(theta_planet) * b / a  # ✅ fix: match vertical axis
 
     # Plot
     fig, ax = plt.subplots(figsize=(6, 6))
@@ -103,11 +103,12 @@ with tab2:
     a, e = exoplanets[selected]
     c = a * e
     T = np.sqrt(a**3)
+    b = a * np.sqrt(1 - e**2)  # ✅ fix here
 
-    # Orbit
+    # Orbit path
     theta = np.linspace(0, 2 * np.pi, 1000)
     x_orbit = a * np.cos(theta) - c
-    y_orbit = a * np.sqrt(1 - e**2) * np.sin(theta)
+    y_orbit = b * np.sin(theta)
 
     # Planet motion
     t = np.linspace(0, 2 * np.pi, 300)
@@ -116,8 +117,8 @@ with tab2:
     theta_planet = 2 * np.arctan2(np.sqrt(1 + e) * np.sin(E / 2),
                                   np.sqrt(1 - e) * np.cos(E / 2))
     r = a * (1 - e**2) / (1 + e * np.cos(theta_planet))
-    x_planet = r * np.cos(theta_planet) - c  # ⭐ align with x_orbit
-    y_planet = r * np.sin(theta_planet)
+    x_planet = r * np.cos(theta_planet) - c
+    y_planet = r * np.sin(theta_planet) * b / a  # ✅ fix: same scale
 
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.set_aspect('equal')
