@@ -7,26 +7,25 @@ import base64
 import os
 import matplotlib as mpl
 
-# Set font
+# Set English font only
 mpl.rcParams['font.family'] = 'Arial'
 mpl.rcParams['axes.unicode_minus'] = False
 
-tab1, tab2 = st.tabs(["🌀 Kepler 궤도 시뮬레이터", "🪐 외계 행성 궤도"])
+# Tabs
+tab1, tab2 = st.tabs(["🌀 Kepler Orbit Simulator", "🪐 Exoplanet Animation"])
 
+# ---------- TAB 1: Kepler User-Controlled Orbit ----------
 with tab1:
     st.title("🌍 Kepler's Law: Elliptical Orbit Simulation")
 
-    # User input
     a = st.number_input("Semi-major axis a (AU)", min_value=0.1, max_value=10.0, value=1.0, step=0.1)
     b = st.number_input("Semi-minor axis b (AU)", min_value=0.1, max_value=a, value=0.8, step=0.1)
 
-    # Eccentricity and focal distance
     e = np.sqrt(1 - (b**2 / a**2))
     c = a * e
     T = np.sqrt(a**3)
-    st.write(f"🕒 Estimated Orbital Period (Kepler's 3rd Law): **{T:.2f} years**")
+    st.write(f"🕒 Estimated Orbital Period: **{T:.2f} years**")
 
-    # Orbit path
     theta = np.linspace(0, 2 * np.pi, 1000)
     x_orbit = a * np.cos(theta) - c
     y_orbit = b * np.sin(theta)
@@ -43,24 +42,26 @@ with tab1:
     theta_planet = 2 * np.arctan2(np.sqrt(1 + e) * np.sin(E / 2),
                                   np.sqrt(1 - e) * np.cos(E / 2))
     r = a * (1 - e**2) / (1 + e * np.cos(theta_planet))
-    x_planet = r * np.cos(theta_planet)
+    x_planet = r * np.cos(theta_planet) - c
     y_planet = r * np.sin(theta_planet)
 
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.set_aspect('equal')
-    ax.plot(x_orbit, y_orbit, 'b-', label='Elliptical Orbit')
-    ax.plot([0], [0], 'yo', markersize=15, label='Star (Focus)')
+    ax.plot(x_orbit, y_orbit, 'b-', label='Orbit')
+    ax.plot([0], [0], 'yo', markersize=15, label='Star')
     planet, = ax.plot([], [], 'ro', markersize=10, label='Planet')
     ax.legend()
     ax.set_xlabel('X (AU)')
     ax.set_ylabel('Y (AU)')
-    ax.set_title("Planetary Motion with Kepler's Laws")
+    ax.set_title("Planet Orbit Animation")
     ax.grid(True)
-    ax.text(0.05, 0.95, f"Period ≈ {T:.2f} years", transform=ax.transAxes,
-            fontsize=12, color='black', verticalalignment='top', bbox=dict(facecolor='white', alpha=0.6))
 
-    ax.set_xlim(np.min(x_orbit) - 0.1 * a, np.max(x_orbit) + 0.1 * a)
-    ax.set_ylim(np.min(y_orbit) - 0.1 * b, np.max(y_orbit) + 0.1 * b)
+    ax.text(0.05, 0.95, f"Period ≈ {T:.2f} years", transform=ax.transAxes,
+            fontsize=12, color='black', verticalalignment='top',
+            bbox=dict(facecolor='white', alpha=0.6))
+
+    ax.set_xlim(np.min(x_orbit) - 0.2, np.max(x_orbit) + 0.2)
+    ax.set_ylim(np.min(y_orbit) - 0.2, np.max(y_orbit) + 0.2)
 
     def update(frame):
         planet.set_data([x_planet[frame]], [y_planet[frame]])
@@ -88,29 +89,60 @@ with tab1:
         st.warning("Failed to generate animation.")
     plt.close(fig)
 
+# ---------- TAB 2: Exoplanet Animated Orbit ----------
 with tab2:
-    st.title("🪐 외계 행성 궤도 시각화")
+    st.title("🪐 Exoplanet Orbit Animation")
 
+    # Sample exoplanets: [a (AU), e]
     exoplanets = {
         "HD 222582 b": [1.35, 0.73],
         "HD 171028 b": [1.32, 0.59]
     }
 
-    selected = st.selectbox("외계 행성을 선택하세요", list(exoplanets.keys()))
+    selected = st.selectbox("Select an exoplanet", list(exoplanets.keys()))
     a, e = exoplanets[selected]
+    c = a * e
+    T = np.sqrt(a**3)
 
-    def plot_orbit(a, e):
-        theta = np.linspace(0, 2 * np.pi, 500)
-        r = (a * (1 - e ** 2)) / (1 + e * np.cos(theta))
-        x = r * np.cos(theta)
-        y = r * np.sin(theta)
+    theta = np.linspace(0, 2 * np.pi, 1000)
+    x_orbit = a * np.cos(theta) - c
+    y_orbit = a * np.sqrt(1 - e**2) * np.sin(theta)
 
-        fig, ax = plt.subplots()
-        ax.plot(x, y, label=f"{selected} 궤도")
-        ax.plot(-a * e, 0, 'yo', label="항성")
-        ax.set_aspect('equal')
-        ax.set_title(f"{selected}의 궤도")
-        ax.legend()
-        st.pyplot(fig)
+    t = np.linspace(0, 2 * np.pi, 300)
+    M = t
+    E = np.array([solve_kepler(Mi, e) for Mi in M])
+    theta_planet = 2 * np.arctan2(np.sqrt(1 + e) * np.sin(E / 2),
+                                  np.sqrt(1 - e) * np.cos(E / 2))
+    r = a * (1 - e**2) / (1 + e * np.cos(theta_planet))
+    x_planet = r * np.cos(theta_planet) - c
+    y_planet = r * np.sin(theta_planet)
 
-    plot_orbit(a, e)
+    fig, ax = plt.subplots(figsize=(6, 6))
+    ax.set_aspect('equal')
+    ax.plot(x_orbit, y_orbit, 'b-', label=f"{selected}")
+    ax.plot([0], [0], 'yo', markersize=15, label='Star')
+    planet, = ax.plot([], [], 'ro', markersize=10, label='Planet')
+    ax.set_title(f"{selected} Orbit Animation")
+    ax.set_xlabel("X (AU)")
+    ax.set_ylabel("Y (AU)")
+    ax.legend()
+    ax.grid(True)
+
+    ax.set_xlim(np.min(x_orbit) - 0.2, np.max(x_orbit) + 0.2)
+    ax.set_ylim(np.min(y_orbit) - 0.2, np.max(y_orbit) + 0.2)
+
+    ax.text(0.05, 0.95, f"Period ≈ {T:.2f} years", transform=ax.transAxes,
+            fontsize=12, color='black', verticalalignment='top',
+            bbox=dict(facecolor='white', alpha=0.6))
+
+    def update(frame):
+        planet.set_data([x_planet[frame]], [y_planet[frame]])
+        return planet,
+
+    ani = FuncAnimation(fig, update, frames=len(t), interval=40, blit=True)
+    html = get_animation_html(ani)
+    if html:
+        st.markdown(html, unsafe_allow_html=True)
+    else:
+        st.warning("Failed to generate animation.")
+    plt.close(fig)
