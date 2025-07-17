@@ -39,6 +39,18 @@ tab1, tab2 = st.tabs(["🌀 Kepler Orbit Simulator", "🪐 Exoplanet Animation"]
 with tab1:
     st.title("🌍 Kepler's Law: Elliptical Orbit Simulation")
 
+    st.markdown("""
+   참고: 주요 행성별 긴반지름과 짧은반지름(AU)
+   수성 0.387, 0.387
+   금성 0.723, 0.723
+   지구 1.000, 1.000
+   화성 1.524, 1.524
+   목성 5.203, 5.203
+   토성 9.537, 9.537
+   천왕성 19.191, 19.180
+   해왕성 30.070, 30.058
+    """)
+
     a = st.number_input("Semi-major axis a (AU)", min_value=0.1, max_value=10.0, value=1.0, step=0.1)
     b = st.number_input("Semi-minor axis b (AU)", min_value=0.1, max_value=a, value=0.8, step=0.1)
     e = np.sqrt(1 - (b**2 / a**2))
