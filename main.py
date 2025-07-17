@@ -8,7 +8,7 @@ import os
 import matplotlib as mpl
 
 # Font setting
-mpl.rcParams['font.family'] = 'Arial'
+mpl.rcParams['font.family'] = 'DejaVu Sans'
 mpl.rcParams['axes.unicode_minus'] = False
 
 # Kepler's Equation Solver
