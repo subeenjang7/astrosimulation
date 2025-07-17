@@ -56,11 +56,8 @@ with tab1:
     t = np.linspace(0, 2 * np.pi, 300)
     M = t
     E = np.array([solve_kepler(Mi, e) for Mi in M])
-    theta_planet = 2 * np.arctan2(np.sqrt(1 + e) * np.sin(E / 2),
-                                  np.sqrt(1 - e) * np.cos(E / 2))
-    r = a * (1 - e**2) / (1 + e * np.cos(theta_planet))
-    x_planet = r * np.cos(theta_planet) - c
-    y_planet = r * np.sin(theta_planet)  # ❌ b/a 제거하여 궤도와 일치
+    x_planet = a * np.cos(E) - c
+    y_planet = b * np.sin(E)
 
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.set_aspect('equal')
@@ -113,11 +110,8 @@ with tab2:
     t = np.linspace(0, 2 * np.pi, 300)
     M = t
     E = np.array([solve_kepler(Mi, e) for Mi in M])
-    theta_planet = 2 * np.arctan2(np.sqrt(1 + e) * np.sin(E / 2),
-                                  np.sqrt(1 - e) * np.cos(E / 2))
-    r = a * (1 - e**2) / (1 + e * np.cos(theta_planet))
-    x_planet = r * np.cos(theta_planet) - c
-    y_planet = r * np.sin(theta_planet)  # ❌ b/a 제거
+    x_planet = a * np.cos(E) - c
+    y_planet = b * np.sin(E)
 
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.set_aspect('equal')
