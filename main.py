@@ -59,8 +59,8 @@ with tab1:
     theta_planet = 2 * np.arctan2(np.sqrt(1 + e) * np.sin(E / 2),
                                   np.sqrt(1 - e) * np.cos(E / 2))
     r = a * (1 - e**2) / (1 + e * np.cos(theta_planet))
-    x_planet = r * np.cos(theta_planet) - c
-    y_planet = r * np.sin(theta_planet) * b / a  # ✅ fix: match vertical axis
+    x_planet = r * np.cos(theta_planet) - c  # ✅ 중심 별과 일치하도록 -c 적용
+    y_planet = r * np.sin(theta_planet) * b / a  # ✅ y축 축척 보정
 
     # Plot
     fig, ax = plt.subplots(figsize=(6, 6))
@@ -96,14 +96,15 @@ with tab2:
 
     exoplanets = {
         "HD 222582 b": [1.35, 0.73],
-        "HD 171028 b": [1.32, 0.59]
+        "HD 171028 b": [1.32, 0.59],
+        "HIP 79431 b": [0.36, 0.29]
     }
 
     selected = st.selectbox("Select an exoplanet", list(exoplanets.keys()))
     a, e = exoplanets[selected]
     c = a * e
+    b = a * np.sqrt(1 - e**2)
     T = np.sqrt(a**3)
-    b = a * np.sqrt(1 - e**2)  # ✅ fix here
 
     # Orbit path
     theta = np.linspace(0, 2 * np.pi, 1000)
@@ -117,8 +118,8 @@ with tab2:
     theta_planet = 2 * np.arctan2(np.sqrt(1 + e) * np.sin(E / 2),
                                   np.sqrt(1 - e) * np.cos(E / 2))
     r = a * (1 - e**2) / (1 + e * np.cos(theta_planet))
-    x_planet = r * np.cos(theta_planet) - c
-    y_planet = r * np.sin(theta_planet) * b / a  # ✅ fix: same scale
+    x_planet = r * np.cos(theta_planet) - c  # ✅ 중심 맞춤
+    y_planet = r * np.sin(theta_planet) * b / a  # ✅ y축 보정
 
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.set_aspect('equal')
